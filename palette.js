@@ -1,13 +1,11 @@
 const inputColor = process.argv[2];
 const color = require('color');
-
-// Funções para estilizar mensagens com ANSI
 const resetAnsi = '\x1b[0m';
-const dangerAnsi = '\x1b[1;91m'; // Fundo vermelho com texto preto
-const warningAnsi = '\x1b[1;93m'; // Fundo amarelo com texto preto
-const invalidAnsi = '\x1b[38;2;240;128;128m'; // Fundo magenta com texto preto
+const dangerAnsi = '\x1b[1;91m';
+const warningAnsi = '\x1b[1;93m';
+const invalidAnsi = '\x1b[38;2;240;128;128m';
 
-// Função para exibir mensagens de erro coloridas com emojis
+// I already started this code, too lazy to finish it 🫩
 const showError = (type, message) => {
   const styles = {
     danger: `${dangerAnsi}`,
@@ -17,8 +15,6 @@ const showError = (type, message) => {
   const prefix = styles[type] || '⚠️';
   console.error(`[${prefix}${type.toUpperCase()}${resetAnsi}] ${message}`);
 };
-
-// Verifica se foi fornecida uma entrada
 if (!inputColor) {
   showError('danger', 'Usage: node tailwindColorPalette.js <color>');
   process.exit(1);
@@ -27,7 +23,6 @@ if (!inputColor) {
 let baseColor;
 
 try {
-  // Valida a cor ao tentar criar a instância
   baseColor = color(inputColor);
 } catch (e) {
   if (e.message.includes('Expected a string')) {
@@ -37,13 +32,9 @@ try {
   }
   process.exit(1);
 }
-
-// Verifica se o terminal suporta ANSI (para exibir cores)
 if (!process.stdout.isTTY) {
   showError('warning', 'Your terminal may not support ANSI escape codes. Colors may not display correctly.');
 }
-
-// Níveis de iluminação
 const levels = {
   50: 90,
   100: 80,
@@ -54,15 +45,12 @@ const levels = {
   600: 30,
   700: 20,
   800: 10,
-  // 900: 27,
-  // 950: 20
 };
 
 const palette = {};
 for (const level in levels) {
   const lightness = levels[level];
   try {
-    // Ajusta a iluminação para cada nível
     const adjustedColor = baseColor.lightness(lightness).hex();
     palette[level] = adjustedColor;
   } catch (e) {
@@ -70,14 +58,10 @@ for (const level in levels) {
     process.exit(1);
   }
 }
-
-// Função para exibir uma linha divisória
 const fill = () => {
   const lengthLine = process.stdout.columns;
   console.log('—'.repeat(Math.floor(lengthLine / 2)));
 };
-
-// Função para mostrar a cor com ANSI no terminal
 const showColorWithAnsi = (hexColor, text) => {
   try {
     const r = parseInt(hexColor.slice(1, 3), 16);
@@ -90,8 +74,6 @@ const showColorWithAnsi = (hexColor, text) => {
   }
 };
 
-// Exibe a paleta com cores no terminal
-
 fill()
 console.log('$palette (')
 for (const level in palette) {
@@ -99,5 +81,3 @@ for (const level in palette) {
   console.log(`  ${colorDisplay}`);
 }
 console.log(');');
-
-// CodedBySamaModz!

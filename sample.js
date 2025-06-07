@@ -1,32 +1,34 @@
 #!/usr/bin/env node
-const https = require("https"); require("console").clear();
-
+const https = require("https");
+require("console").clear();
 const colors = {
   reset: "\x1b[0m",
-  gray: "\x1b[38;2;150;150;150m",
-  yellow: "\x1b[38;2;255;200;0m",
-  green: "\x1b[38;2;100;255;100m",
-  red: "\x1b[38;2;255;100;100m",
-  blue: "\x1b[38;2;100;200;255m",
-  purple: "\x1b[38;2;200;100;255m",
-  cyan: "\x1b[38;2;100;255;255m",
-  orange: "\x1b[38;2;255;150;50m",
+  gray: "\x1b[90m",    
+  yellow: "\x1b[33m",  
+  green: "\x1b[32m",   
+  red: "\x1b[31m",     
+  blue: "\x1b[34m",    
+  cyan: "\x1b[36m",    
+ 
 };
+
 const nerdFont = {
-  check: "\x1b[1;38;2;100;255;100m ",
-  cross: "\x1b[1;38;2;255;100;100m ",
-  gear: "\x1b[1;38;2;160;160;160m ",
-  hourglass: "\x1b[1;38;2;255;200;0m ",
-  lock: "\x1b[1;38;2;100;180;100m ",
-  unlock: "\x1b[1;38;2;100;255;100m ",
-  loading: "\x1b[1;38;2;100;200;255m ",
-  email: "\x1b[1;38;2;255;150;50m ",
-  key: "\x1b[1;38;2;200;100;255m ",
-  user: "\x1b[1;38;2;100;255;255m ",
+  check: `${colors.green}${colors.reset} `,
+  cross: `${colors.red}${colors.reset} `,
+  gear: `${colors.gray}${colors.reset} `,
+  hourglass: `${colors.yellow}${colors.reset} `,
+  lock: `${colors.green}${colors.reset} `,
+  unlock: `${colors.green}${colors.reset} `,
+  loading: `${colors.blue}${colors.reset} `,
+  email: `${colors.yellow}${colors.reset} `,
+  key: `${colors.gray}${colors.reset} `,
+  user: `${colors.cyan}${colors.reset} `,
 };
+
 const printFilledLine = (char = "─") => {
   console.log(char.repeat(process.stdout.columns));
 };
+
 const printStatus = (message, status = "processing", icon = "gear") => {
   const colorMap = {
     processing: colors.gray,
@@ -34,13 +36,14 @@ const printStatus = (message, status = "processing", icon = "gear") => {
     success: colors.green,
     error: colors.red,
     info: colors.blue,
-    warning: colors.orange,
-    note: colors.purple,
+    warning: colors.yellow,
+    note: colors.gray,     
   };
   const color = colorMap[status] || colors.gray;
   const selectedIcon = nerdFont[icon] || nerdFont.gear;
   console.log(`${color}${selectedIcon} ${message}${colors.reset}`);
 };
+
 const delay = (ms, message = "") => {
   return new Promise((resolve) => {
     const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
@@ -56,14 +59,16 @@ const delay = (ms, message = "") => {
     }, ms);
   });
 };
+
 const debugLog = (message, data = {}) => {
   if (process.env.DEBUG) {
-    console.log(`${colors.purple} DEBUG: ${message}${colors.reset}`);
+    console.log(`${colors.gray} DEBUG: ${message}${colors.reset}`);
     if (Object.keys(data).length > 0) {
-      console.log(`${colors.purple}${JSON.stringify(data, null, 2)}${colors.reset}`);
+      console.log(`${colors.gray}${JSON.stringify(data, null, 2)}${colors.reset}`);
     }
   }
 };
+
 const generatePassword = (length = 14) => {
   const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@&$";
   let password = "";
@@ -73,6 +78,7 @@ const generatePassword = (length = 14) => {
   }
   return password;
 };
+
 const checkInstagramAccount = async (username) => {
   return new Promise((resolve, reject) => {
     const options = {
@@ -80,13 +86,14 @@ const checkInstagramAccount = async (username) => {
       path: `/${username}/`,
       method: "GET",
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        "Referer": "https://www.instagram.com/",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        Referer: "https://www.instagram.com/",
         "Accept-Language": "en-US,en;q=0.9",
       },
     };
     debugLog("Making HTTP request to Instagram...", {
-      url: `https://${options.hostname}${options.path}`
+      url: `https://${options.hostname}${options.path}`,
     });
     const req = https.request(options, (res) => {
       let data = "";
@@ -94,20 +101,20 @@ const checkInstagramAccount = async (username) => {
       res.on("end", () => {
         debugLog("Received response from Instagram.", {
           statusCode: res.statusCode,
-          headers: res.headers
+          headers: res.headers,
         });
         if (res.statusCode === 200) {
-          if (data.includes("Página não encontrada")) {
-            resolve(false); // Account does not exist
+          if (data.includes("Page Not Found")) {
+            resolve(false);
           } else {
-            resolve(true); // Account exists
+            resolve(true);
           }
         } else if (res.statusCode === 302) {
           const location = res.headers.location;
           debugLog("Following redirect...", {
-            location
+            location,
           });
-          resolve(checkInstagramAccount(username)); // Recursão para seguir o redirecionamento
+          resolve(checkInstagramAccount(username));
         } else {
           reject(new Error(`HTTP error: ${res.statusCode}`));
         }
@@ -115,16 +122,17 @@ const checkInstagramAccount = async (username) => {
     });
     req.on("error", (error) => {
       debugLog("HTTP request failed.", {
-        error: error.message
+        error: error.message,
       });
       reject(error);
     });
     req.end();
   });
 };
+
 const simulateRecovery = async () => {
   printFilledLine();
-  console.log(`${colors.purple}${nerdFont.lock} Instagram Account Recovery${colors.reset}`);
+  console.log(`${colors.gray}${nerdFont.lock} Instagram Account Recovery${colors.reset}`);
   printFilledLine();
   const username = process.argv[2];
   if (!username) {
@@ -147,86 +155,75 @@ const simulateRecovery = async () => {
       {
         message: "Starting recovery process...",
         delay: 2000,
-        icon: "gear"
+        icon: "gear",
       },
-
       {
         message: "Verifying email address...",
         status: "pending",
         delay: 3000,
-        icon: "email"
+        icon: "email",
       },
-
       {
         message: "Email address verified successfully.",
         status: "success",
         delay: 1000,
-        icon: "check"
+        icon: "check",
       },
-
       {
         message: "Sending recovery code to your email...",
         delay: 4000,
-        icon: "email"
+        icon: "email",
       },
-
       {
         message: "Recovery code sent. Please check your email.",
         status: "info",
         delay: 2000,
-        icon: "email"
+        icon: "email",
       },
-
       {
         message: "Waiting for recovery code input...",
         status: "pending",
         delay: 5000,
-        icon: "hourglass"
+        icon: "hourglass",
       },
-
       {
         message: "Recovery code accepted.",
         status: "success",
         delay: 1000,
-        icon: "check"
+        icon: "check",
       },
-
       {
         message: "Resetting password...",
         delay: 3000,
-        icon: "key"
+        icon: "key",
       },
-
       {
         message: "Password reset successfully.",
         status: "success",
         delay: 1000,
-        icon: "check"
+        icon: "check",
       },
-
       {
         message: "Logging into your account...",
         delay: 2000,
-        icon: "user"
+        icon: "user",
       },
-
       {
         message: "Account recovered successfully!",
         status: "success",
         delay: 0,
-        icon: "check"
+        icon: "check",
       },
-
     ];
     for (const step of steps) {
       printStatus(step.message, step.status || "processing", step.icon);
       debugLog(`Executing step: ${step.message}`, {
         delay: step.delay,
-        icon: step.icon
+        icon: step.icon,
       });
       await delay(step.delay, step.message);
     }
-    // Gera uma nova senha
+
     const newPassword = generatePassword(14);
     printFilledLine();
     console.log(`${colors.green}${nerdFont.unlock} Account Recovery Summary:${colors.reset}`);
@@ -236,9 +233,10 @@ const simulateRecovery = async () => {
   } catch (error) {
     printStatus(`Error: ${error.message}`, "error", "cross");
     debugLog("Error occurred during recovery process.", {
-      error: error.message
+      error: error.message,
     });
     printFilledLine();
   }
 };
+
 simulateRecovery();

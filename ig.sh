@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Colors
 RED='\033[1;31m'
 GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
@@ -49,7 +48,8 @@ fetch_instagram_profile() {
   fi
 
   u=$(echo "$data" | jq '.user')
-  wget -qO ig.png "$(echo $u | jq -r '.profile_pic_url_hd')" && chafa ig.png --size=60x60 && rm -rf ig.png
+  # install the Chafa for use the command below 
+  # wget -qO ig.png "$(echo $u | jq -r '.profile_pic_url_hd')" && chafa ig.png --size=60x60 && rm -rf ig.png
   
   # echo
   # echo -e "$GREEN Profile information for @$username:$RESET"
