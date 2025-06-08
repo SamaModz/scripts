@@ -26,7 +26,46 @@ stop_spinner() {
   printf "\r$RESET"
 }
 
+check_package() {
+   create_spinner "${YELLOW}Checking for required packages...${RESET}"
+  local cmds=(jq chafa curl wget)
+
+  # Detect available package manager
+  for pm in pkg apt pacman dnf apk zypper; do
+    if command -v $pm &>/dev/null; then
+      case $pm in
+        pkg)    INSTALL="pkg install -y" ;;
+        apt)    INSTALL="sudo apt install -y" ;;
+        pacman) INSTALL="sudo pacman -Sy --noconfirm" ;;
+        dnf)    INSTALL="sudo dnf install -y" ;;
+        apk)    INSTALL="sudo apk add" ;;
+        zypper) INSTALL="sudo zypper install -y" ;;
+      esac
+      break
+    fi
+  done
+  stop_spinner
+
+  [[ -z "$INSTALL" ]] && echo -e "${RED}No supported package manager found.${RESET}" && exit 1
+
+  for cmd in "${cmds[@]}"; do
+    if command -v "$cmd" &>/dev/null; then
+      echo -e "${GREEN}$cmd is already installed.${RESET}"
+    else
+      create_spinner "${YELLOW}$cmd not found. Installing...${RESET}"
+      stop_spinner
+      if $INSTALL "$cmd" &>/dev/null; then
+        echo -e "${GREEN}$cmd installed successfully.${RESET}"
+      else
+        echo -e "${RED}Failed to install $cmd.${RESET}"
+        exit 1
+      fi
+    fi
+  done
+}
+
 fetch_instagram_profile() {
+  check_package #> /dev/null
   username="$1"
   if [ -z "$username" ]; then
     echo -e "$RED Error: Username not provided.$RESET"
@@ -49,7 +88,7 @@ fetch_instagram_profile() {
 
   u=$(echo "$data" | jq '.user')
   # install the Chafa for use the command below 
-  # wget -qO ig.png "$(echo $u | jq -r '.profile_pic_url_hd')" && chafa ig.png --size=60x60 && rm -rf ig.png
+  wget -qO ig.png "$(echo $u | jq -r '.profile_pic_url_hd')" && chafa ig.png --size=60x60 && rm -rf ig.png
   
   # echo
   # echo -e "$GREEN Profile information for @$username:$RESET"
