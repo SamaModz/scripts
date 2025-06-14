@@ -13,16 +13,16 @@ const colors = {
 };
 
 const nerdFont = {
-  check: `${colors.green}${colors.reset} `,
-  cross: `${colors.red}${colors.reset} `,
-  gear: `${colors.gray}${colors.reset} `,
-  hourglass: `${colors.yellow}${colors.reset} `,
-  lock: `${colors.green}${colors.reset} `,
-  unlock: `${colors.green}${colors.reset} `,
-  loading: `${colors.blue}${colors.reset} `,
-  email: `${colors.yellow}${colors.reset} `,
-  key: `${colors.gray}${colors.reset} `,
-  user: `${colors.cyan}${colors.reset} `,
+  check: `${colors.green} `,
+  cross: `${colors.red} `,
+  gear: `${colors.gray} `,
+  hourglass: `${colors.yellow} `,
+  lock: `${colors.green} `,
+  unlock: `${colors.green} `,
+  loading: `${colors.blue} `,
+  email: `${colors.yellow} `,
+  key: `${colors.gray} `,
+  user: `${colors.cyan} `,
 };
 
 const printFilledLine = (char = "─") => {

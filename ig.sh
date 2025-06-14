@@ -65,7 +65,7 @@ check_package() {
 }
 
 fetch_instagram_profile() {
-  check_package #> /dev/null
+  # check_package 2>/dev/null
   username="$1"
   if [ -z "$username" ]; then
     echo -e "$RED Error: Username not provided.$RESET"
@@ -73,7 +73,7 @@ fetch_instagram_profile() {
   fi
 
   create_spinner "Fetching profile information for @$username..."
-  
+
   response=$(curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
     -H "x-ig-app-id: 936619743392459" \
     "https://i.instagram.com/api/v1/users/web_profile_info/?username=$username")
@@ -87,9 +87,9 @@ fetch_instagram_profile() {
   fi
 
   u=$(echo "$data" | jq '.user')
-  # install the Chafa for use the command below 
-  wget -qO ig.png "$(echo $u | jq -r '.profile_pic_url_hd')" && chafa ig.png --size=60x60 && rm -rf ig.png
-  
+  # install the Chafa for use the command below
+  wget -qO ig.png "$(echo $u | jq -r '.profile_pic_url_hd')" && chafa ig.png --size=60x60 # && rm -rf ig.png
+
   # echo
   # echo -e "$GREEN Profile information for @$username:$RESET"
   # echo -e "$RESET  :$PURPLE $(echo "$u" | jq -r '.id // "N/A"')"
@@ -114,7 +114,7 @@ fetch_instagram_profile() {
   echo -e "${CYAN}${RESET} \033[1;37mVerified:${RESET} $(if [ "$(echo "$u" | jq -r '.is_verified')" = "true" ]; then echo -e "${GREEN}Yes${RESET}"; else echo -e "${RED}No${RESET}"; fi)"
   echo -e "${CYAN}${RESET} \033[1;37mPrivate:${RESET} $(if [ "$(echo "$u" | jq -r '.is_private')" = "true" ]; then echo -e "${GREEN}Yes${RESET}"; else echo -e "${RED}No${RESET}"; fi)"
   # echo -e "${CYAN}${RESET} \033[1;37mProfile Pic URL:${RESET} $PURPLE$(echo "$u" | jq -r '.profile_pic_url_hd // "N/A"')"
-  echo 
+  echo
 }
 
 username="$1"

@@ -6,8 +6,9 @@ YELLOW='\033[1;34m'
 YELLOW='\033[1;35m'
 CYAN='\033[1;36m'
 RESET='\033[0m'
-DISK=""
 
+# Icons
+DISK=""
 CD=""
 ARROW=""
 WARN=""
