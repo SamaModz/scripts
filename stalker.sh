@@ -88,33 +88,33 @@ fetch_instagram_profile() {
 
   u=$(echo "$data" | jq '.user')
   # install the Chafa for use the command below
-  wget -qO ig.png "$(echo $u | jq -r '.profile_pic_url_hd')" && chafa ig.png --size=60x60 # && rm -rf ig.png
+  # wget -qO photo.png "$(echo $u | jq -r '.profile_pic_url_hd')" && chafa ig.png --size=60x60 # && rm -rf ig.png
+  # echo "$u" | jq
+  echo
+  echo -e "$GREEN Profile information for @$username:$RESET"
+  echo -e "$RESET  :$PURPLE $(echo "$u" | jq -r '.id // "N/A"')"
+  echo -e "$RESET  :$GREEN $(echo "$u" | jq -r '.full_name // "N/A"')"
+  echo -e "$RESET 󰓹 :$GREEN $(echo "$u" | jq -r '.username // "N/A"')"
+  echo -e "$RESET 󰂦 :$BLUE $(echo "$u" | jq -r '.biography // "N/A"')"
+  echo -e "$RESET  :$YELLOW $(echo "$u" | jq -r '.edge_followed_by.count // "N/A"')"
+  echo -e "$RESET  :$YELLOW $(echo "$u" | jq -r '.edge_follow.count // "N/A"')"
+  echo -e "$RESET  : $(if [ "$(echo "$u" | jq -r '.is_verified')" = "true" ]; then echo -e "${GREEN}Yes${RESET}"; else echo -e "${RED}No${RESET}"; fi)"
+  echo -e "$RESET  : $(if [ "$(echo "$u" | jq -r '.is_verified')" = "true" ]; then echo -e "${GREEN}Yes${RESET}"; else echo -e "${RED}No${RESET}"; fi)"
+  echo -e "$RESET  :$PURPLE $(echo "$u" | jq -r '.profile_pic_url_hd // "N/A"')"
+  echo
 
   # echo
-  # echo -e "$GREEN Profile information for @$username:$RESET"
-  # echo -e "$RESET  :$PURPLE $(echo "$u" | jq -r '.id // "N/A"')"
-  # echo -e "$RESET  :$GREEN $(echo "$u" | jq -r '.full_name // "N/A"')"
-  # echo -e "$RESET 󰓹 :$GREEN $(echo "$u" | jq -r '.username // "N/A"')"
-  # echo -e "$RESET 󰂦 :$BLUE $(echo "$u" | jq -r '.biography // "N/A"')"
-  # echo -e "$RESET  :$YELLOW $(echo "$u" | jq -r '.edge_followed_by.count // "N/A"')"
-  # echo -e "$RESET  :$YELLOW $(echo "$u" | jq -r '.edge_follow.count // "N/A"')"
-  # echo -e "$RESET  : $(if [ "$(echo "$u" | jq -r '.is_verified')" = "true" ]; then echo -e "${GREEN}Yes${RESET}"; else echo -e "${RED}No${RESET}"; fi)"
-  # echo -e "$RESET  : $(if [ "$(echo "$u" | jq -r '.is_verified')" = "true" ]; then echo -e "${GREEN}Yes${RESET}"; else echo -e "${RED}No${RESET}"; fi)"
-  # echo -e "$RESET  :$PURPLE $(echo "$u" | jq -r '.profile_pic_url_hd // "N/A"')"
+  # echo -e "${GREEN} Profile information for @$username:${RESET}"
+  # echo -e "${CYAN}${RESET} \033[1;37mUser ID:${RESET} $PURPLE$(echo "$u" | jq -r '.id // "N/A"')"
+  # echo -e "${CYAN}${RESET} \033[1;37mFull Name:${RESET} $GREEN$(echo "$u" | jq -r '.full_name // "N/A"')"
+  # echo -e "${CYAN}󰓹${RESET} \033[1;37mUsername:${RESET} $GREEN$(echo "$u" | jq -r '.username // "N/A"')"
+  # echo -e "${CYAN}󰂦${RESET} \033[1;37mBiography:${RESET} $BLUE$(echo "$u" | jq -r '.biography // "N/A"')"
+  # echo -e "${CYAN}${RESET} \033[1;37mFollowers:${RESET} $YELLOW$(echo "$u" | jq -r '.edge_followed_by.count // "N/A"')"
+  # echo -e "${CYAN}${RESET} \033[1;37mFollowing:${RESET} $YELLOW$(echo "$u" | jq -r '.edge_follow.count // "N/A"')"
+  # echo -e "${CYAN}${RESET} \033[1;37mVerified:${RESET} $(if [ "$(echo "$u" | jq -r '.is_verified')" = "true" ]; then echo -e "${GREEN}Yes${RESET}"; else echo -e "${RED}No${RESET}"; fi)"
+  # echo -e "${CYAN}${RESET} \033[1;37mPrivate:${RESET} $(if [ "$(echo "$u" | jq -r '.is_private')" = "true" ]; then echo -e "${GREEN}Yes${RESET}"; else echo -e "${RED}No${RESET}"; fi)"
+  # # echo -e "${CYAN}${RESET} \033[1;37mProfile Pic URL:${RESET} $PURPLE$(echo "$u" | jq -r '.profile_pic_url_hd // "N/A"')"
   # echo
-
-  echo
-  echo -e "${GREEN} Profile information for @$username:${RESET}"
-  echo -e "${CYAN}${RESET} \033[1;37mUser ID:${RESET} $PURPLE$(echo "$u" | jq -r '.id // "N/A"')"
-  echo -e "${CYAN}${RESET} \033[1;37mFull Name:${RESET} $GREEN$(echo "$u" | jq -r '.full_name // "N/A"')"
-  echo -e "${CYAN}󰓹${RESET} \033[1;37mUsername:${RESET} $GREEN$(echo "$u" | jq -r '.username // "N/A"')"
-  echo -e "${CYAN}󰂦${RESET} \033[1;37mBiography:${RESET} $BLUE$(echo "$u" | jq -r '.biography // "N/A"')"
-  echo -e "${CYAN}${RESET} \033[1;37mFollowers:${RESET} $YELLOW$(echo "$u" | jq -r '.edge_followed_by.count // "N/A"')"
-  echo -e "${CYAN}${RESET} \033[1;37mFollowing:${RESET} $YELLOW$(echo "$u" | jq -r '.edge_follow.count // "N/A"')"
-  echo -e "${CYAN}${RESET} \033[1;37mVerified:${RESET} $(if [ "$(echo "$u" | jq -r '.is_verified')" = "true" ]; then echo -e "${GREEN}Yes${RESET}"; else echo -e "${RED}No${RESET}"; fi)"
-  echo -e "${CYAN}${RESET} \033[1;37mPrivate:${RESET} $(if [ "$(echo "$u" | jq -r '.is_private')" = "true" ]; then echo -e "${GREEN}Yes${RESET}"; else echo -e "${RED}No${RESET}"; fi)"
-  # echo -e "${CYAN}${RESET} \033[1;37mProfile Pic URL:${RESET} $PURPLE$(echo "$u" | jq -r '.profile_pic_url_hd // "N/A"')"
-  echo
 }
 
 username="$1"
