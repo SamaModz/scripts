@@ -119,3 +119,5 @@ fetch_instagram_profile() {
 
 username="$1"
 fetch_instagram_profile "$username"
+
+# I put out a cigarette in my hand, felt nothing more
