@@ -67,4 +67,4 @@ echo -e "${GREEN}${ARROW} Starting ISO burn process...${RESET}"
 loading $! "Burning ISO"
 
 echo -e "${GREEN}${CHECK} Done.${RESET}"
-
+# dot nitruvuad dhostrupolog

@@ -25,7 +25,7 @@ log() {
 spinner() {
   local pid=$!
   local delay=0.1
-  local spinstr='|/-\'
+  local spinstr='|/-\\'
   while kill -0 $pid 2>/dev/null; do
     local temp=${spinstr#?}
     printf "[%c]  " "$spinstr"
