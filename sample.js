@@ -3,13 +3,13 @@ const https = require("https");
 require("console").clear();
 const colors = {
   reset: "\x1b[0m",
-  gray: "\x1b[90m",    
-  yellow: "\x1b[33m",  
-  green: "\x1b[32m",   
-  red: "\x1b[31m",     
-  blue: "\x1b[34m",    
-  cyan: "\x1b[36m",    
- 
+  gray: "\x1b[90m",
+  yellow: "\x1b[33m",
+  green: "\x1b[32m",
+  red: "\x1b[31m",
+  blue: "\x1b[34m",
+  cyan: "\x1b[36m",
+
 };
 
 const nerdFont = {
@@ -37,7 +37,7 @@ const printStatus = (message, status = "processing", icon = "gear") => {
     error: colors.red,
     info: colors.blue,
     warning: colors.yellow,
-    note: colors.gray,     
+    note: colors.gray,
   };
   const color = colorMap[status] || colors.gray;
   const selectedIcon = nerdFont[icon] || nerdFont.gear;

@@ -88,7 +88,7 @@ fetch_instagram_profile() {
 
   u=$(echo "$data" | jq '.user')
   # install the Chafa for use the command below
-  # wget -qO photo.png "$(echo $u | jq -r '.profile_pic_url_hd')" && chafa ig.png --size=60x60 # && rm -rf ig.png
+  wget -qO thisImage.png "$(echo $u | jq -r '.profile_pic_url_hd')" && chafa thisImage.png --size=60x60 && rm -rf thisImage.png
   # echo "$u" | jq
   echo
   echo -e "$GREEN Profile information for @$username:$RESET"
@@ -119,5 +119,8 @@ fetch_instagram_profile() {
 
 username="$1"
 fetch_instagram_profile "$username"
+if [ $? -ne 0 ]; then
+  echo -e "${RED}Failed to fetch profile information for @$username.${RESET}"
+  exit 1
+fi
 
-# I put out a cigarette in my hand, felt nothing more
