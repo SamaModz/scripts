@@ -102,7 +102,7 @@ fetch_instagram_profile() {
   echo -e "$RESET  : $(if [ "$(echo "$u" | jq -r '.is_verified')" = "true" ]; then echo -e "${GREEN}Yes${RESET}"; else echo -e "${RED}No${RESET}"; fi)"
   echo -e "$RESET  :$PURPLE $(echo "$u" | jq -r '.profile_pic_url_hd // "N/A"')"
   echo
-
+  
   # echo
   # echo -e "${GREEN} Profile information for @$username:${RESET}"
   # echo -e "${CYAN}${RESET} \033[1;37mUser ID:${RESET} $PURPLE$(echo "$u" | jq -r '.id // "N/A"')"

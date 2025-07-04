@@ -30,7 +30,7 @@ const colors = {
 const { reset, red, green, yellow, blue, gray, orange } = colors;
 
 const icons = {
-  success: '?', // 
+  success: '?', //
   error: '?',
   warn: '?',
   info: '?',

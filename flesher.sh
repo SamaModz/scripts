@@ -30,11 +30,13 @@ loading() {
     printf "\r${GREEN}${CHECK} ${message} completed.${RESET}\n"
     tput cnorm
 }
+
 confirm_action() {
     local prompt=$1
     read -p "$(echo -e "${RED}${WARN} ${prompt} (y/N): ${RESET}")" confirm
     [[ "$confirm" == "y" || "$confirm" == "Y" ]]
 }
+
 clear
 echo -e "${CYAN}${CD} ISO Burner Tool${RESET}"
 echo -e "${YELLOW}${ARROW} This script will use 'dd' to burn an ISO image to a USB device.${RESET}"
@@ -46,6 +48,7 @@ if [[ ! -f "$iso_path" ]]; then
     echo -e "${RED}${CROSS} File not found: $iso_path${RESET}"
     exit 1
 fi
+
 echo
 echo -e "${YELLOW}${DISK} Available devices (lsblk):${RESET}"
 lsblk -dpno NAME,SIZE,MODEL | grep -v "loop"
