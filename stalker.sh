@@ -88,7 +88,9 @@ fetch_instagram_profile() {
 
   u=$(echo "$data" | jq '.user')
   # install the Chafa for use the command below
-  wget -qO thisImage.png "$(echo $u | jq -r '.profile_pic_url_hd')" && chafa thisImage.png --size=60x60 && rm -rf thisImage.png
+  curl -so thisImage.png "$(echo $u | jq -r '.profile_pic_url_hd')"
+  chafa thisImage.png
+  rm -rf thisImage.png
   # echo "$u" | jq
   echo
   echo -e "$GREEN Profile information for @$username:$RESET"
