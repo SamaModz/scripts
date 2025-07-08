@@ -10,7 +10,7 @@ RESET='\033[0m'
 
 create_spinner() {
   text="$1"
-  spinner_chars=('|' '/' '-' '\\')
+  spinner_chars=('' '' '' '' '' '')
   i=0
   while true; do
     printf "\r$CYAN${spinner_chars[i]} $text$RESET"
@@ -102,7 +102,7 @@ fetch_instagram_profile() {
   echo -e "$RESET  : $(if [ "$(echo "$u" | jq -r '.is_verified')" = "true" ]; then echo -e "${GREEN}Yes${RESET}"; else echo -e "${RED}No${RESET}"; fi)"
   echo -e "$RESET  :$PURPLE $(echo "$u" | jq -r '.profile_pic_url_hd // "N/A"')"
   echo
-  
+
   # echo
   # echo -e "${GREEN} Profile information for @$username:${RESET}"
   # echo -e "${CYAN}${RESET} \033[1;37mUser ID:${RESET} $PURPLE$(echo "$u" | jq -r '.id // "N/A"')"
@@ -122,5 +122,7 @@ fetch_instagram_profile "$username"
 if [ $? -ne 0 ]; then
   echo -e "${RED}Failed to fetch profile information for @$username.${RESET}"
   exit 1
+  pkill bash
+  echo "${YELLOW}Finalized Process...${RESET}"
 fi
 
