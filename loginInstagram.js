@@ -1,13 +1,10 @@
 #!/usr/bin/env node
-const axios = require('axios');
-const querystring = require('querystring');
-const fs = require('fs');
-const readline = require('readline');
-const dotenv = require('dotenv');
-const winston = require('winston');
-
-dotenv.config();
-
+import axios from 'axios';
+import querystring from 'querystring';
+import fs from 'fs';
+import readline from 'readline';
+import winston from 'winston';
+import process from 'process';
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.combine(
@@ -27,14 +24,15 @@ const colors = {
   orange: '\x1b[38;5;208m'
 };
 
-const { reset, red, green, yellow, blue, gray, orange } = colors;
+const { reset, red, green, blue, gray, orange } = colors;
 
+// Nerd Font icons for the log messages
 const icons = {
-  success: '?', //
-  error: '?',
-  warn: '?',
-  info: '?',
-  debug: '?'
+  success: '\u2714', // Check mark
+  error: '\u2716', // Cross mark
+  warn: '\u26A0', // Warning sign
+  info: '\u2139', // Information
+  debug: '\uD83D\uDD0E' // Magnifying glass tilted left
 };
 
 const log = {
@@ -44,6 +42,7 @@ const log = {
   info: (msg) => logger.info(`${blue}${icons.info} ${msg}${reset}`),
   debug: (msg) => logger.debug(`${gray}${icons.debug} ${msg}${reset}`)
 };
+
 
 const args = process.argv.slice(2);
 let username, proxy, verbose = false;
