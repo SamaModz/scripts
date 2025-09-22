@@ -24,15 +24,15 @@ const colors = {
   orange: '\x1b[38;5;208m'
 };
 
+
 const { reset, red, green, blue, gray, orange } = colors;
 
-// Nerd Font icons for the log messages
 const icons = {
-  success: '\u2714', // Check mark
-  error: '\u2716', // Cross mark
-  warn: '\u26A0', // Warning sign
-  info: '\u2139', // Information
-  debug: '\uD83D\uDD0E' // Magnifying glass tilted left
+  success: '\u2714',
+  error: '\u2716',
+  warn: '\u26A0',
+  info: '\u2139',
+  debug: '\uD83D\uDD0E'
 };
 
 const log = {

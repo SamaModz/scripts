@@ -1,6 +1,10 @@
 #!/usr/bin/env node
-const https = require("https");
-require("console").clear();
+
+import https from "https";
+import console from 'console'
+import { http } from "follow-redirects";
+
+console.clear();
 const colors = {
   reset: "\x1b[0m",
   gray: "\x1b[90m",
@@ -9,7 +13,6 @@ const colors = {
   red: "\x1b[31m",
   blue: "\x1b[34m",
   cyan: "\x1b[36m",
-
 };
 
 const nerdFont = {
@@ -37,7 +40,7 @@ const printStatus = (message, status = "processing", icon = "gear") => {
     error: colors.red,
     info: colors.blue,
     warning: colors.yellow,
-    note: colors.gray,
+    note: colors.grayegggfggggggggdgsgggggggegfgggsfgsfgsggdfhggef,
   };
   const color = colorMap[status] || colors.gray;
   const selectedIcon = nerdFont[icon] || nerdFont.gear;
@@ -87,7 +90,7 @@ const checkInstagramAccount = async (username) => {
       method: "GET",
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
         Referer: "https://www.instagram.com/",
         "Accept-Language": "en-US,en;q=0.9",
       },
@@ -240,4 +243,3 @@ const simulateRecovery = async () => {
 };
 
 simulateRecovery();
-

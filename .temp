@@ -1,0 +1,41 @@
+freezer 1
+camara 1
+padaria 1,2,3,4,5
+
+gelo
+pista quente
+ilhas 1-11
+ilha 12 (frente a PAS)
+
+
+folha de tras 
+1-8 (frios/swift)
+9 (frango inteiro)
+10 (danones)
+12 (camara de correr)
+
+padaria :
+bolo
+pudim
+
+linguiças e fatiados
+embandejados e fatiados
+
+
+PAS(alho)
+açogue:
+gancheira 
+balcao 1,2
+<- ilha de pecas de carnes
+-> embandejados dos açogue
+
+-> camara 3
+<- camara 2
+
+camara 4
+camara 5,6
+
+9↑ 6 camara
+
+# balcao de embandejados (cheia de carnes)
+

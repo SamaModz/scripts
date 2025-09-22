@@ -40,19 +40,19 @@ spinner() {
 urlencode() {
   local string="${1}"
   local strlen=${#string}
-  local encoded=""
-  for (( pos=0 ; pos<strlen ; pos++ )); do
-    c=${string:$pos:1}
-    case "$c" in
-      [a-zA-Z0-9.~_-]) encoded+="$c" ;;
-      ' ') encoded+="+" ;;
-      *) printf -v hex '%%%02X' "'$c"
-         encoded+="$hex"
-         ;;
-    esac
-  done
-  echo "$encoded"
-}
+    local encoded=""
+    for (( pos=0 ; pos<strlen ; pos++ )); do
+      c=${string:$pos:1}
+      case "$c" in
+        [a-zA-Z0-9.~_-]) encoded+="$c" ;;
+        ' ') encoded+="+" ;;
+        *) printf -v hex '%%%02X' "'$c"
+          encoded+="$hex"
+          ;;
+      esac
+    done
+    echo "$encoded"
+  }
 
 if [ -z "$1" ]; then
   log "$RED" "$ICON_ERROR" "Please provide a username."
@@ -141,9 +141,9 @@ send_recovery_request() {
 
     log "$CYAN" "$ICON_EMAIL" "$BODY"
     echo -e "${CYAN}Recovery method:${RESET}"
-    echo -e "${CYAN} ~ Can be recovered with code: ${CAN_RECOVER_WITH_CODE}${RESET}"
-    echo -e "${CYAN} ~ Hidden email: ${CONTACT_POINT}${RESET}"
-    echo -e "${CYAN} ~ Recovery method: ${RECOVERY_METHOD}${RESET}"
+    echo -e "${CYAN} — Can be recovered with code: ${CAN_RECOVER_WITH_CODE}${RESET}"
+    echo -e "${CYAN} — Hidden email: ${CONTACT_POINT}${RESET}"
+    echo -e "${CYAN} — Recovery method: ${RECOVERY_METHOD}${RESET}"
   else
     TITLE=$(echo "$RESPONSE" | jq -r '.title // "Error"')
     BODY=$(echo "$RESPONSE" | jq -r '.body // "Unknown error"')

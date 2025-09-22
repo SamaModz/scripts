@@ -1,0 +1,29 @@
+<script>
+  var myElement = document.getElementById('totalAmt');
+
+  function calc() {
+    var money = parseInt(document.querySelector('#money').value) || 0;
+    var bills = document.querySelectorAll('table tr input.billAmt');
+    var billTotal = 0;
+
+    for (i = 0; i < bills.length; i++) {
+      billTotal += parseInt(bills[i].value) || 0;
+    }
+    totalAmt.innerHTML = money + billTotal;
+    myElement.style.color = money + billTotal <= 0 ? 'red' : 'green';
+
+  }
+</script>
+<p><b>Starting Amount: &#36; <input id="money" type="number" onkeyup="calc()"></b></p>
+
+<table>
+  <tr>
+    <th>Bill Ammount</th>
+  </tr>
+  <tr>
+    <td><input type="number" class="billAmt" id="billAmt" onkeyup="calc()"></td>
+  </tr>
+</table>
+
+<input type="hidden" id="total" name="total" value="0">
+<p><b>Ending Amount: &#36; <span id="totalAmt">0</span></b></p>11
