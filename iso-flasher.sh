@@ -31,8 +31,7 @@ log_warn()   { say "${WARN}${BOLD}${ICON_WARN}" "$*"; }
 log_err()    { say "${ERR}${BOLD}${ICON_ERR}" "$*"; }
 abort() { log_err "$*"; exit 1; }
 
-LOCK_FILE="$HOME/../usr/tmp/iso-flasher.lock"
-# LOCK_FILE="/tmp/iso-flasher.lock"
+LOCK_FILE="/tmp/iso-flasher.lock"
 exec 9>"$LOCK_FILE" || true
 if ! flock -n 9; then
   abort "a run is already in progress (lock: $LOCK_FILE)."

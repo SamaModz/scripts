@@ -21,6 +21,14 @@ iMEM=""
 iWIFI=""
 iBAT=""
 
+DISTRO=$(grep '^PRETTY_NAME=' /etc/os-release | cut -d= -f2 | tr -d '"')
+MEMORY=$(free -h --si | awk '/^Mem:/ {print $3 "/ " $2}')
+RAM=$(free -h --si | awk '/^Mem:/ {print $3}')
+GPU=$(lspci | grep -i 'vga\|3d\|2d' | cut -d: -f3- | sed 's/^[ \t]*//')
+CPU=$(lscpu | grep 'Model name' | sed 's/Model name:[ \t]*//')
+MOTHERBOARD=$(lscpu | grep 'Model name' | sed 's/Model name:[ \t]*//')
+
+
 TL="╭"; 
 TR="╮";
 BL="╰";
@@ -41,7 +49,7 @@ else
 fi
 
 version=$(uname -r)
-
+# Print Basic information
 echo -e "$Y$iUSER$N  user     $R$USER$N"
 echo -e "$Y$iHOST$N  host     $Y$(hostname)$N"
 echo -e "$G$iDISTRO$N  distro   $G$DISTRO$N"
@@ -50,3 +58,7 @@ echo -e "$B$iUPTIME$N  uptime   $B$(uptime -p | sed 's/up //')$N"
 echo -e "$P$iSHELL$N  shell    $P$SHELL$N"
 echo -e "$R$iPKGS$N  pkgs     $R$PACKAGES$N"
 echo -e "$Y$iMEM$N  memory   $Y$MEMORY$N"
+echo -e "$G$iMEM$N  cpu      $G$CPU$N"
+echo -e "$P$iMEM$N  gpu      $P$GPU$N"
+# echo -e "$C$iMEM$N  motherboard $C$MOTHERBOARD$N"
+
