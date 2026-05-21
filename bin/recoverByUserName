@@ -1,0 +1,385 @@
+#!/usr/bin/env bash
+#
+# # Cores ANSI
+# RED='\033[1;91m'
+# GREEN='\033[1;92m'
+# YELLOW='\033[1;93m'
+# BLUE='\033[1;94m'
+# CYAN='\033[1;96m'
+# RESET='\033[0m'
+#
+# ICON_SUCCESS=" "
+# ICON_ERROR=" "
+# ICON_INFO="󰋽 "
+# ICON_EMAIL="󰇰 "
+# ICON_USER=" "
+#
+# log() {
+#   local color="$1"
+#   local icon="$2"
+#   local message="$3"
+#   echo -e "${color}${icon} ${message}${RESET}"
+# }
+#
+# spinner() {
+#   local pid=$!
+#   local delay=0.1
+#   local spinstr='|/-\\'
+#   while kill -0 $pid 2>/dev/null; do
+#     local temp=${spinstr#?}
+#     printf "[%c]  " "$spinstr"
+#     spinstr=$temp${spinstr%"$temp"}
+#     sleep $delay
+#     printf "\b\b\b\b\b\b"
+#   done
+#   printf "\b\b\b\b\b\b"
+# }
+#
+# # urlencode em bash puro (sem python)
+# urlencode() {
+#   local string="${1}"
+#   local strlen=${#string}
+#     local encoded=""
+#     for (( pos=0 ; pos<strlen ; pos++ )); do
+#       c=${string:$pos:1}
+#       case "$c" in
+#         [a-zA-Z0-9.~_-]) encoded+="$c" ;;
+#         ' ') encoded+="+" ;;
+#         *) printf -v hex '%%%02X' "'$c"
+#           encoded+="$hex"
+#           ;;
+#       esac
+#     done
+#     echo "$encoded"
+#   }
+#
+# if [ -z "$1" ]; then
+#   log "$RED" "$ICON_ERROR" "Please provide a username."
+#   echo "Usage: $0 <username> [--proxy=http://proxy:port] [--check-only] [--retry]"
+#   exit 1
+# fi
+#
+# USERNAME="$1"
+# shift
+# PROXY=""
+# CHECK_ONLY=false
+# RETRY=false
+#
+# while [[ "$#" -gt 0 ]]; do
+#   case "$1" in
+#     --proxy=*)
+#       PROXY="${1#*=}"
+#       ;;
+#     --check-only)
+#       CHECK_ONLY=true
+#       ;;
+#     --retry)
+#       RETRY=true
+#       ;;
+#     *)
+#       log "$YELLOW" "$ICON_INFO" "Unknown argument: $1"
+#       ;;
+#   esac
+#   shift
+# done
+#
+# # User-Agent MacOS padrão
+# # USER_AGENT="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+# # User-Agent Microsoft Padrao
+# USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+# get_csrf_token() {
+#   log "$BLUE" "$ICON_INFO" "Getting cookies and CSRF token..."
+#
+#   # Captura headers para extrair cookie csrftoken
+#   if [ -n "$PROXY" ]; then
+#     CSRF_TOKEN=$(curl -s -x "$PROXY" -A "$USER_AGENT" -D - "https://www.instagram.com/accounts/password/reset/" | grep -i 'Set-Cookie: csrftoken=' | head -n1 | sed -E 's/.*csrftoken=([^;]+);.*/\1/')
+#   else
+#     CSRF_TOKEN=$(curl -s -A "$USER_AGENT" -D - "https://www.instagram.com/accounts/password/reset/" | grep -i 'Set-Cookie: csrftoken=' | head -n1 | sed -E 's/.*csrftoken=([^;]+);.*/\1/')
+#   fi
+#
+#   if [ -z "$CSRF_TOKEN" ]; then
+#     log "$RED" "$ICON_ERROR" "CSRF token not found."
+#     exit 1
+#   fi
+#
+#   log "$GREEN" "$ICON_SUCCESS" "CSRF token successfully obtained."
+# }
+#
+# send_recovery_request() {
+#   log "$BLUE" "$ICON_INFO" "Sending recovery request..."
+#
+#   POST_DATA="email_or_username=$(urlencode "$USERNAME")&recaptcha_challenge_field="
+#
+#   HEADERS=(
+#     -H "Content-Type: application/x-www-form-urlencoded"
+#     -H "User-Agent: $USER_AGENT"
+#     -H "X-CSRFToken: $CSRF_TOKEN"
+#     -H "X-Instagram-AJAX: 1"
+#     -H "X-Requested-With: XMLHttpRequest"
+#     -H "Cookie: csrftoken=$CSRF_TOKEN"
+#   )
+#
+#   if [ -n "$PROXY" ]; then
+#     RESPONSE=$(curl -s -x "$PROXY" "${HEADERS[@]}" -d "$POST_DATA" "https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/")
+#   else
+#     RESPONSE=$(curl -s "${HEADERS[@]}" -d "$POST_DATA" "https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/")
+#   fi
+#
+#   if ! command -v jq &> /dev/null; then
+#     log "$RED" "$ICON_ERROR" "'jq' utility is not installed. Please install it to continue."
+#     exit 1
+#   fi
+#
+#   STATUS=$(echo "$RESPONSE" | jq -r '.status // empty')
+#
+#   if [ "$STATUS" == "ok" ]; then
+#     log "$GREEN" "$ICON_SUCCESS" "Request sent successfully!"
+#     BODY=$(echo "$RESPONSE" | jq -r '.body // empty')
+#     CONTACT_POINT=$(echo "$RESPONSE" | jq -r '.contact_point // empty')
+#     RECOVERY_METHOD=$(echo "$RESPONSE" | jq -r '.recovery_method // empty')
+#     CAN_RECOVER_WITH_CODE=$(echo "$RESPONSE" | jq -r '.can_recover_with_code // empty')
+#
+#     log "$CYAN" "$ICON_EMAIL" "$BODY"
+#     echo -e "${CYAN}Recovery method:${RESET}"
+#     echo -e "${CYAN} — Can be recovered with code: ${CAN_RECOVER_WITH_CODE}${RESET}"
+#     echo -e "${CYAN} — Hidden email: ${CONTACT_POINT}${RESET}"
+#     echo -e "${CYAN} — Recovery method: ${RECOVERY_METHOD}${RESET}"
+#   else
+#     TITLE=$(echo "$RESPONSE" | jq -r '.title // "Error"')
+#     BODY=$(echo "$RESPONSE" | jq -r '.body // "Unknown error"')
+#     log "$RED" "$ICON_ERROR" "${TITLE}: ${BODY}"
+#   fi
+# }
+#
+# main() {
+#   log "$BLUE" "$ICON_USER" "Starting recovery for user @$USERNAME"
+#
+#   MAX_RETRIES=1
+#   if [ "$RETRY" = true ]; then
+#     MAX_RETRIES=3
+#   fi
+#
+#   ATTEMPT=1
+#   while [ $ATTEMPT -le $MAX_RETRIES ]; do
+#     get_csrf_token
+#     send_recovery_request
+#
+#     STATUS=$(echo "$RESPONSE" | jq -r '.status // empty')
+#     if [ "$STATUS" == "ok" ]; then
+#       break
+#     else
+#       log "$YELLOW" "$ICON_INFO" "Attempt $ATTEMPT failed."
+#       if [ $ATTEMPT -lt $MAX_RETRIES ]; then
+#         SLEEP_TIME=$((2 ** ATTEMPT))
+#         log "$YELLOW" "$ICON_INFO" "Waiting $SLEEP_TIME seconds before next attempt..."
+#         sleep $SLEEP_TIME
+#       fi
+#     fi
+#     ATTEMPT=$((ATTEMPT + 1))
+#   done
+#
+#   if [ "$STATUS" != "ok" ]; then
+#     log "$RED" "$ICON_ERROR" "All attempts failed."
+#   fi
+# }
+#
+# main
+#
+#!/usr/bin/env bash
+
+# ==============================================================================
+# Script: recoverByUserName_v2.sh
+# Descrição: Wrapper profissional para recuperação de conta do Instagram.
+# Autor: Manus AI (Baseado no script original do usuário)
+# Versão: 2.1.0
+# ==============================================================================
+
+# --- Configurações e Cores ---
+set -o pipefail
+
+# Cores ANSI (Paleta Estendida)
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[1;34m'
+MAGENTA='\033[1;35m'
+CYAN='\033[1;36m'
+WHITE='\033[1;37m'
+RESET='\033[0m'
+
+# Ícones
+ICON_SUCCESS="✔"
+ICON_ERROR="✘"
+ICON_INFO="ℹ"
+ICON_EMAIL="✉"
+ICON_USER="👤"
+ICON_WAIT="⏳"
+ICON_LOCK="🔒"
+
+# Arquivos de Trabalho
+LOG_FILE="instagram_recovery.log"
+COOKIE_JAR=$(mktemp ~/../usr/tmp/ig_cookies.XXXXXX)
+
+# --- Funções de Utilidade ---
+
+log() {
+    local level="$1"
+    local color="$2"
+    local icon="$3"
+    local message="$4"
+    local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+    echo -e "${color}${icon} [${level}] ${message}${RESET}"
+    echo "[${timestamp}] [${level}] ${message}" >> "${LOG_FILE}"
+}
+
+cleanup() {
+    [[ -f "$COOKIE_JAR" ]] && rm -f "$COOKIE_JAR"
+    log "INFO" "$BLUE" "$ICON_INFO" "Limpeza de arquivos temporários concluída."
+}
+trap cleanup EXIT
+
+urlencode() {
+    local string="${1}"
+    local strlen=${#string}
+    local encoded=""
+    for (( pos=0 ; pos<strlen ; pos++ )); do
+        c=${string:$pos:1}
+        case "$c" in
+            [a-zA-Z0-9.~_-]) encoded+="$c" ;;
+            ' ') encoded+="+" ;;
+            *) printf -v hex '%%%02X' "'$c"
+               encoded+="$hex"
+               ;;
+        esac
+    done
+    echo "$encoded"
+}
+
+check_dependencies() {
+    local deps=("curl" "jq" "grep" "sed")
+    for dep in "${deps[@]}"; do
+        if ! command -v "$dep" &> /dev/null; then
+            log "ERROR" "$RED" "$ICON_ERROR" "Dependência ausente: $dep."
+            exit 1
+        fi
+    done
+}
+
+# --- Lógica Principal ---
+
+get_csrf_token() {
+    log "INFO" "$BLUE" "$ICON_WAIT" "Obtendo cookies e token CSRF..."
+    
+    local url="https://www.instagram.com/accounts/password/reset/"
+    local temp_html=$(mktemp ~/../usr/tmp/ig_page.XXXXXX)
+    
+    local curl_opts=(-s -S -L -A "$USER_AGENT" -c "$COOKIE_JAR" -b "$COOKIE_JAR")
+    [[ -n "$PROXY" ]] && curl_opts+=(-x "$PROXY")
+    
+    curl "${curl_opts[@]}" "$url" > "$temp_html"
+    
+    if [[ $? -ne 0 ]]; then
+        log "ERROR" "$RED" "$ICON_ERROR" "Falha na conexão."
+        rm -f "$temp_html"
+        return 1
+    fi
+
+    # Tentar extrair de várias formas (Cookie, JSON embutido, etc)
+    CSRF_TOKEN=$(grep -oP '"csrf_token":"\K[^"]+' "$temp_html" | head -n1)
+    
+    if [[ -z "$CSRF_TOKEN" ]]; then
+        # Tentar no cookie jar
+        CSRF_TOKEN=$(grep "csrftoken" "$COOKIE_JAR" | awk '{print $7}')
+    fi
+
+    rm -f "$temp_html"
+
+    if [[ -z "$CSRF_TOKEN" ]]; then
+        log "ERROR" "$RED" "$ICON_LOCK" "Token CSRF não encontrado. O Instagram pode estar exigindo desafio (Challenge)."
+        return 1
+    fi
+
+    log "SUCCESS" "$GREEN" "$ICON_SUCCESS" "Token CSRF obtido."
+    return 0
+}
+
+send_recovery_request() {
+    local username="$1"
+    log "INFO" "$BLUE" "$ICON_WAIT" "Enviando solicitação para @$username..."
+
+    local post_data="email_or_username=$(urlencode "$username")&recaptcha_challenge_field="
+    local api_url="https://www.instagram.com/api/v1/web/accounts/account_recovery_send_ajax/"
+    
+    local headers=(
+        -H "Content-Type: application/x-www-form-urlencoded"
+        -H "X-CSRFToken: $CSRF_TOKEN"
+        -H "X-Instagram-AJAX: 1"
+        -H "X-Requested-With: XMLHttpRequest"
+        -H "Referer: https://www.instagram.com/accounts/password/reset/"
+        -H "User-Agent: $USER_AGENT"
+    )
+
+    local curl_opts=(-s -S -b "$COOKIE_JAR" "${headers[@]}" -d "$post_data")
+    [[ -n "$PROXY" ]] && curl_opts+=(-x "$PROXY")
+
+    local response=$(curl "${curl_opts[@]}" "$api_url")
+    
+    if ! echo "$response" | jq . >/dev/null 2>&1; then
+        log "ERROR" "$RED" "$ICON_ERROR" "Resposta inválida do servidor."
+        return 1
+    fi
+
+    local status=$(echo "$response" | jq -r '.status // "fail"')
+
+    if [[ "$status" == "ok" ]]; then
+        local msg=$(echo "$response" | jq -r '.body // "Link enviado!"')
+        local contact=$(echo "$response" | jq -r '.contact_point // "N/A"')
+        
+        log "SUCCESS" "$GREEN" "$ICON_EMAIL" "SUCESSO: $msg"
+        echo -e "${CYAN}Ponto de Contato: ${YELLOW}$contact${RESET}"
+        return 0
+    else
+        local error_body=$(echo "$response" | jq -r '.body // "Erro desconhecido"')
+        log "ERROR" "$RED" "$ICON_ERROR" "Erro: $error_body"
+        return 1
+    fi
+}
+
+usage() {
+    echo -e "Uso: $0 <username> [--proxy=URL] [--retry]"
+    exit 1
+}
+
+check_dependencies
+
+if [[ -z "$1" ]]; then usage; fi
+
+USERNAME="$1"
+shift
+PROXY=""
+RETRY=false
+USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        --proxy=*) PROXY="${1#*=}" ;;
+        --retry)   RETRY=true ;;
+    esac
+    shift
+done
+
+main() {
+    log "INFO" "$MAGENTA" "$ICON_USER" "Iniciando para @$USERNAME"
+    local max_attempts=1
+    [[ "$RETRY" == true ]] && max_attempts=3
+    
+    for (( i=1; i<=max_attempts; i++ )); do
+        if get_csrf_token && send_recovery_request "$USERNAME"; then
+            exit 0
+        fi
+        [[ $i -lt $max_attempts ]] && sleep 5
+    done
+    exit 1
+}
+
+main

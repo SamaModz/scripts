@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -e
+
+
+
+
+
+deps=(
+  android-tools
+  aria2
+  bash-completion
+  bat
+  chafa
+  command-not-found
+  curl
+  dialog
+  fd
+  ffmpeg
+  fzf
+  gh
+  git
+  jq
+  lsd
+  lua-language-server
+  luarocks
+  mandoc
+  mpv
+  ncurses-utils
+  neovim-nightly
+  nodejs
+  poppler
+  ripgrep
+  termux-api
+  wget
+  yt-dlp
+  zip
+)
+
+echo "[*] Detectando gerenciador de pacotes..."
+
+if command -v apt >/dev/null 2>&1; then
+  PM="apt"
+elif command -v pacman >/dev/null 2>&1; then
+  PM="pacman"
+elif command -v dnf >/dev/null 2>&1; then
+  PM="dnf"
+elif command -v pkg >/dev/null 2>&1; then
+  PM="pkg"
+elif command -v xbps-install >/dev/null 2>&1; then
+  PM="xbps"
+else
+  echo "[!] Gerenciador de pacotes não suportado"
+  exit 1
+fi
+
+echo "[*] Usando: $PM"
+
+install_apt() {
+  apt update
+  apt install -y "${deps[@]}" util-linux coreutils
+}
+
+install_pacman() {
+  pacman -Sy --noconfirm "${deps[@]}" util-linux coreutils
+}
+
+install_dnf() {
+  dnf install -y "${deps[@]}" util-linux coreutils
+}
+
+install_pkg() {
+  pkg install -y "${deps[@]}" util-linux coreutils
+}
+
+install_xbps() {
+  xbps-install -Sy "${deps[@]}" util-linux coreutils
+}
+case "$PM" in
+  apt) install_apt ;;
+  pacman) install_pacman ;;
+  dnf) install_dnf ;;
+  pkg) install_pkg ;;
+  xbps) install_xbps ;;
+esac
+
+echo "[✓] Dependências instaladas com sucesso"

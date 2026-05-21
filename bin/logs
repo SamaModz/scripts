@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+
+# ───────── CORES ─────────
+RESET="\033[0m"
+WHITE="\033[37m"
+
+declare -A COLORS=(
+  [ERROR]="\033[31m"
+  [WARN]="\033[33m"
+  [INFO]="\033[34m"
+  [DEBUG]="\033[35m"
+  [OK]="\033[32m"
+  [LOG]="\033[37m"
+)
+
+# ───────── CONFIG ─────────
+USE_ICONS=false   # true ou false
+
+# ───────── ÍCONES ─────────
+declare -A ICONS=(
+  [ERROR]=""
+  [WARN]=""
+  [INFO]=""
+  [DEBUG]=""
+  [OK]=""
+  [LOG]="󰌵"
+)
+
+# ───────── LABELS ─────────
+declare -A LABELS=(
+  [ERROR]="ERRO"
+  [WARN]="WARN"
+  [INFO]="INFO"
+  [DEBUG]="DEBU"
+  [OK]="SCSS"
+  [LOG]="LOGS"
+)
+
+# ───────── CALCULA LARGURA ─────────
+MAX_WIDTH=0
+for key in "${!LABELS[@]}"; do
+  content="${LABELS[$key]}"
+  if $USE_ICONS; then
+    content="${ICONS[$key]} $content"
+  fi
+
+  len=${#content}
+  (( len > MAX_WIDTH )) && MAX_WIDTH=$len
+done
+
+center_text() {
+  local text="$1"
+  local width="$2"
+  local len=${#text}
+  local pad=$((width - len))
+  local left=$((pad / 2))
+  local right=$((pad - left))
+  printf "%*s%s%*s" "$left" "" "$text" "$right" ""
+}
+
+log() {
+  local level="$1"
+  shift
+  local message="$*"
+
+  [[ -z "${LABELS[$level]}" ]] && level="LOG"
+
+  local label="${LABELS[$level]}"
+  local color="${COLORS[$level]}"
+  local icon="${ICONS[$level]}"
+
+  local content="$label"
+  $USE_ICONS && content="$icon $label"
+
+  local centered
+  centered=$(center_text "$content" "$MAX_WIDTH")
+
+  if [[ "$level" == "ERROR" ]]; then
+    echo -e "${WHITE}[${color}${centered}${WHITE}]${RESET} $message" >&2
+  else
+    echo -e "${WHITE}[${color}${centered}${WHITE}]${RESET} $message"
+  fi
+}
+
+# ───────── EXEMPLOS ─────────
+# log ERROR "Falha ao conectar no servidor"
+# log WARN "Configuração depreciada"
+# log INFO "Servidor iniciado"
+# log DEBUG "Variável x=42"
+# log OK "Deploy concluído com sucesso"
+# log TESTE "Cai automaticamente em LOG"

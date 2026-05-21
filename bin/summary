@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Script para extrair a legenda de um post do Instagram usando Bash puro (curl + sed)
+# Uso: ./extract_ig_caption.sh <URL_DO_POST>
+
+if [ -z "$1" ]; then
+    echo "Uso: $0 <URL_DO_POST>"
+    exit 1
+fi
+
+URL=$1
+USER_AGENT="Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+
+# Baixa o HTML usando um User-Agent que o Instagram costuma servir metatags estáticas
+HTML=$(curl -s -L -A "$USER_AGENT" "$URL")
+
+# Extrai o conteúdo da metatag og:description
+# O Instagram formata essa tag como: "<n> likes, <m> comments - <user> on <date>: "<legenda>""
+CAPTION=$(echo "$HTML" | grep "og:description" | sed 's/.*property="og:description" content="\([^"]*\)".*/\1/' | sed 's/.*on [^:]*: &quot;//' | sed 's/&quot;.*//')
+
+if [ -z "$CAPTION" ]; then
+    # Tenta uma extração alternativa caso o formato acima falhe
+    CAPTION=$(echo "$HTML" | sed -n 's/.*<meta property="og:description" content="\([^"]*\)".*/\1/p')
+fi
+
+# Função simples em Bash para decodificar entidades HTML básicas (&#x...; &quot; &amp;)
+decode_entities() {
+    local input="$1"
+    # Decodifica &#x...; (hexadecimal)
+    while [[ "$input" =~ \&\#x([0-9a-fA-F]+)\; ]]; do
+        local hex="${BASH_REMATCH[1]}"
+        local char=$(printf "\\U$hex")
+        input="${input//\&\#x$hex\;/$char}"
+    done
+    # Decodifica entidades comuns
+    input="${input//&quot;/\"}"
+    input="${input//&amp;/&}"
+    input="${input//&lt;/<}"
+    input="${input//&gt;/>}"
+    input="${input//&#39;/\'}"
+    echo -e "$input"
+}
+
+if [ -n "$CAPTION" ]; then
+    decode_entities "$CAPTION"
+else
+    echo "Não foi possível extrair a legenda. Verifique a URL ou se o post é público."
+fi

@@ -1,0 +1,178 @@
+#!/bin/bash
+
+# =========================
+# 🎨 CORES
+# =========================
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+# =========================
+# 📏 LINHA DINÂMICA
+# =========================
+line() {
+  local cols
+  cols=$(tput cols 2>/dev/null || echo 80)
+  printf "${BLUE}%*s${NC}\n" "$cols" "" | tr " " "━"
+}
+
+# =========================
+# 🧠 UTILS
+# =========================
+success() { echo -e "${GREEN}✅ $1${NC}"; }
+error()   { echo -e "${RED}❌ $1${NC}"; }
+info()    { echo -e "${CYAN}ℹ️  $1${NC}"; }
+warn()    { echo -e "${YELLOW}⚠️  $1${NC}"; }
+
+pause() {
+  echo
+  read -p "🔁 Pressione ENTER para continuar..."
+}
+
+# =========================
+# 🔐 SSH SETUP
+# =========================
+setup_ssh() {
+  line
+  echo -e "${MAGENTA}🔐 Configurando SSH...${NC}"
+  line
+
+  mkdir -p ~/.ssh
+  chmod 700 ~/.ssh
+
+  if [ -f ~/.ssh/id_ed25519 ]; then
+    warn "Chave SSH já existe"
+  else
+    ssh-keygen -t ed25519 -N "" -C "$(whoami)@termux" -f ~/.ssh/id_ed25519
+    success "Chave SSH criada"
+  fi
+
+  eval "$(ssh-agent -s)" >/dev/null
+  ssh-add ~/.ssh/id_ed25519 >/dev/null
+
+  chmod 600 ~/.ssh/id_ed25519
+  chmod 644 ~/.ssh/id_ed25519.pub
+
+  success "SSH configurado com sucesso"
+}
+
+# =========================
+# 📋 MOSTRAR CHAVE
+# =========================
+show_key() {
+  line
+  echo -e "${YELLOW}📋 Copie sua chave SSH:${NC}"
+  line
+  cat ~/.ssh/id_ed25519.pub
+  line
+  echo -e "${CYAN}👉 Cole em: https://github.com/settings/keys${NC}"
+}
+
+# =========================
+# 🔗 TESTAR CONEXÃO
+# =========================
+test_ssh() {
+  line
+  echo -e "${MAGENTA}🔗 Testando conexão com GitHub...${NC}"
+  line
+  ssh -o StrictHostKeyChecking=accept-new -T git@github.com
+}
+
+# =========================
+# ⚙️ CONFIG GIT
+# =========================
+config_git() {
+  line
+  echo -e "${MAGENTA}⚙️ Configurando Git...${NC}"
+  line
+
+  read -p "👤 Nome: " name
+  read -p "📧 Email: " email
+
+  git config --global user.name "$name"
+  git config --global user.email "$email"
+
+  success "Git configurado com sucesso"
+}
+
+# =========================
+# 🚀 TESTE DE PUSH
+# =========================
+test_push() {
+  line
+  echo -e "${MAGENTA}🚀 Teste de push...${NC}"
+  line
+
+  if [ ! -d .git ]; then
+    info "Inicializando repositório..."
+    git init
+    touch README.md
+    git add .
+    git commit -m "init"
+  fi
+
+  read -p "🔗 URL do repositório (SSH ou HTTPS): " repo
+
+  git remote remove origin 2>/dev/null
+  git remote add origin "$repo"
+  git branch -M main
+
+  git push -u origin main
+}
+
+# =========================
+# ⚡ SETUP COMPLETO
+# =========================
+full_setup() {
+  setup_ssh
+  show_key
+  warn "Adicione a chave no GitHub antes de continuar!"
+  echo "👉 https://github.com/settings/keys"
+  pause
+  test_ssh
+  config_git
+}
+
+# =========================
+# 🎛️ MENU
+# =========================
+menu() {
+  clear
+
+  echo -e "${CYAN}"
+  line
+  printf "🚀 GIT + SSH CLI SETUP\n"
+  line
+  echo -e "${NC}"
+
+  echo "1) 🔐 Configurar SSH"
+  echo "2) 📋 Mostrar chave SSH"
+  echo "3) 🔗 Testar conexão"
+  echo "4) ⚙️ Configurar Git"
+  echo "5) 🚀 Testar push"
+  echo "6) ⚡ Setup completo"
+  echo "0) ❌ Sair"
+  echo
+
+  read -p "👉 Escolha: " opt
+
+  case $opt in
+    1) setup_ssh ;;
+    2) show_key ;;
+    3) test_ssh ;;
+    4) config_git ;;
+    5) test_push ;;
+    6) full_setup ;;
+    0) exit ;;
+    *) error "Opção inválida" ;;
+  esac
+
+  pause
+  menu
+}
+
+menu
